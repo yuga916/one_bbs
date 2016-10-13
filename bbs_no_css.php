@@ -12,41 +12,30 @@ if (!empty($_POST)){
   $nickname = ($_POST['nickname']);
   $comment = ($_POST['comment']);
 
-  $sql = "INSERT INTO `posts`(`id`, `nickname`, `comment`, `created`) VALUES (null,'$nickname','$comment',now())";
+  $sql = "INSERT INTO `posts`(`id`, `nickname`, `comment`, `created`) VALUES (null,'$nickname','$comment',now())"; 
   $stmt = $dbh->prepare($sql);
   $stmt->execute();
- }
-
-
-  $dbh = null;  
-
-
-  $dsn = 'mysql:dbname=oneline_bbs;host=localhost';
-  $user = 'root';
-  $password = '';
-  $dbh = new PDO($dsn, $user, $password);
-  $dbh->query('SET NAMES utf8');
 
   $sql = 'SELECT * FROM `posts` ORDER BY created DESC';
 
   $stmt = $dbh->prepare($sql);
   $stmt->execute();
 
+  $posts = array();
+
   while (1) {
     $rec = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($rec == false) {
       break;
-    }
-    echo $rec['id'] . '<br>';
-    echo $rec['nickname'] . '<br>';
-    echo $rec['comment'] . '<br>';
-    echo $rec['created'] . '<br>';
-    echo '<hr>';
+    }    
+    $posts[] = $rec;
   }
 
-$dbh = null;
-
+  $dbh = null;
+}
 ?>
+
+    
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -57,14 +46,24 @@ $dbh = null;
     <form method="post" action="">
       <p><input type="text" name="nickname" placeholder="nickname"></p>
       <p><textarea type="text" name="comment" placeholder="comment"></textarea></p>
-      <p><button type="submit">つぶやく</button></p>
-
-      
-      
+      <p><button type="submit">つぶやく</button></p>      
     </form>
     <!-- ここにニックネーム、つぶやいた内容、日付を表示する -->
-    <p><?php echo $nickname; ?></p>
+    <!-- <?php //echo $posts[40]['nickname']; ?>
+    <?php //echo $posts[40]['comment']; ?> -->
+    <ul>
+      <?php foreach ($posts as $post_each) {
+        echo '<li>';
+        echo $post_each['nickname'] . '';
+        echo $post_each['comment'] . '';
+        
+        $created = strtotime($post_each['created']);
+        $created = date('Y/m/d' ,$created);
+        echo $created;
+        echo '</li>';
+      } ?>
 
+    </ul>
 
 </body>
 </html>
